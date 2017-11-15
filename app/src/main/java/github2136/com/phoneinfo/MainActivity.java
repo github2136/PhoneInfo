@@ -1,8 +1,11 @@
 package github2136.com.phoneinfo;
 
 import android.os.Build;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.CellLocation;
+import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.widget.TextView;
 
@@ -14,9 +17,60 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        TextView tvInfo = (TextView) findViewById(R.id.tv_info);
-        DisplayMetrics dm = getResources().getDisplayMetrics();
         StringBuilder sb = new StringBuilder();
+
+        TextView tvInfo = (TextView) findViewById(R.id.tv_info);
+        TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        //GSM的IMEI和CDMA的MEID活ESN 设备标识
+        String deviceId = tm.getDeviceId();
+        sb.append("IMED/EMID/ESN：");
+        sb.append(deviceId);
+        sb.append("\n");
+        //手机号(有些手机号无法获取，是因为运营商在SIM中没有写入手机号)
+        String tel = tm.getLine1Number();
+        sb.append("手机号：");
+        sb.append(tel);
+        sb.append("\n");
+        //获取手机SIM卡的序列号ICCID
+        String simNum = tm.getSimSerialNumber();
+        sb.append("ICCID：");
+        sb.append(simNum);
+        sb.append("\n");
+        //获取客户id，在gsm中是imsi号
+        String imsi = tm.getSubscriberId();
+        sb.append("IMSI：");
+        sb.append(imsi);
+        sb.append("\n");
+        //电话方位
+//        CellLocation str = tm.getCellLocation();
+        //运营商名称,注意：仅当用户已在网络注册时有效,在CDMA网络中结果也许不可靠
+        String networkoperatorName = tm.getNetworkOperatorName();
+        sb.append("NetworkOperatorName：");
+        sb.append(networkoperatorName);
+        sb.append("\n");
+        //取得和语音邮件相关的标签，即为识别符
+        String voiceMail = tm.getVoiceMailAlphaTag();
+        sb.append("VoiceMailAlphaTag：");
+        sb.append(voiceMail);
+        sb.append("\n");
+        //获取语音邮件号码：
+        String voiceMailNumber = tm.getVoiceMailNumber();
+        sb.append("VoiceMailNumber：");
+        sb.append(voiceMailNumber);
+        sb.append("\n");
+        //获取ISO国家码，相当于提供SIM卡的国家码。
+        String simCountryIso = tm.getSimCountryIso();
+        sb.append("SimCountryIso：");
+        sb.append(simCountryIso);
+        sb.append("\n");
+
+        //androidid可在系统设置还原时重置他在版本为2.2时不是100%可靠的有的设备会统一返回9774d56d682e549c
+        String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        sb.append("android_id：");
+        sb.append(android_id);
+        sb.append("\n");
+
+        DisplayMetrics dm = getResources().getDisplayMetrics();
         //屏幕信息
         sb.append("屏幕信息");
         sb.append("\n");
