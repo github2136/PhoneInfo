@@ -9,7 +9,10 @@ import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.widget.TextView;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.channels.ScatteringByteChannel;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,11 +24,91 @@ public class MainActivity extends AppCompatActivity {
 
         TextView tvInfo = (TextView) findViewById(R.id.tv_info);
         TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-        //GSM的IMEI和CDMA的MEID活ESN 设备标识
-        String deviceId = tm.getDeviceId();
-        sb.append("IMED/EMID/ESN：");
-        sb.append(deviceId);
-        sb.append("\n");
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            String meid = tm.getMeid();
+            sb.append("MEID：");
+            sb.append(meid);
+            sb.append("\n");
+
+            String deviceId1 = tm.getImei(0);
+            sb.append("IMEI1：");
+            sb.append(deviceId1);
+            sb.append("\n");
+
+            String deviceId2 = tm.getImei(1);
+            sb.append("IMEI2：");
+            sb.append(deviceId2);
+            sb.append("\n");
+
+        } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            try {
+                Method method = tm.getClass().getMethod("getDeviceId", int.class);
+                String deviceId1 = (String) method.invoke(tm, 1);
+                String deviceId2 = (String) method.invoke(tm, 2);
+
+                if (deviceId1 != null) {
+                    if (deviceId1.length() == 15) {
+                        sb.append("IMEI1：");
+                        sb.append(deviceId1);
+                        sb.append("\n");
+                    } else {
+                        sb.append("MEID：");
+                        sb.append(deviceId1);
+                        sb.append("\n");
+                    }
+                }
+
+                if (deviceId2 != null) {
+                    if (deviceId2.length() == 15) {
+                        sb.append("IMEI2：");
+                        sb.append(deviceId2);
+                        sb.append("\n");
+                    } else {
+                        sb.append("MEID：");
+                        sb.append(deviceId2);
+                        sb.append("\n");
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String deviceId1 = tm.getDeviceId(0);
+            String deviceId2 = tm.getDeviceId(1);
+            if (deviceId1 != null) {
+                if (deviceId1.length() == 15) {
+                    sb.append("IMEI1：");
+                    sb.append(deviceId1);
+                    sb.append("\n");
+                } else {
+                    sb.append("MEID：");
+                    sb.append(deviceId1);
+                    sb.append("\n");
+                }
+            }
+
+            if (deviceId2 != null) {
+                if (deviceId2.length() == 15) {
+                    sb.append("IMEI2：");
+                    sb.append(deviceId2);
+                    sb.append("\n");
+                } else {
+                    sb.append("MEID：");
+                    sb.append(deviceId2);
+                    sb.append("\n");
+                }
+            }
+        } else {
+            String deviceId1 = tm.getDeviceId();
+            sb.append("IMED/EMID/ESN：");
+            sb.append(deviceId1);
+            sb.append("\n");
+        }
+
         //手机号(有些手机号无法获取，是因为运营商在SIM中没有写入手机号)
         String tel = tm.getLine1Number();
         sb.append("手机号：");
@@ -160,6 +243,13 @@ public class MainActivity extends AppCompatActivity {
                 sb.append(supportedBitAbi);
                 sb.append("\n\n");
             }
+        } else {
+            sb.append("CPU_ABI(CPU_ABI)：\n");
+            sb.append(Build.CPU_ABI);
+            sb.append("\n\n");
+            sb.append("CPU_ABI2(CPU_ABI2)：\n");
+            sb.append(Build.CPU_ABI2);
+            sb.append("\n\n");
         }
         sb.append("构建类型(TAGS)：\n");
         sb.append(Build.TAGS);
@@ -176,14 +266,6 @@ public class MainActivity extends AppCompatActivity {
         sb.append("(USER)：\n");
         sb.append(Build.USER);
         sb.append("\n\n");
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            sb.append("CPU_ABI(CPU_ABI)：\n");
-            sb.append(Build.CPU_ABI);
-            sb.append("\n\n");
-            sb.append("CPU_ABI2(CPU_ABI2)：\n");
-            sb.append(Build.CPU_ABI2);
-            sb.append("\n\n");
-        }
         sb.append("无线电固件版本(getRadioVersion)：\n");
         sb.append(Build.getRadioVersion());
         sb.append("\n\n");
