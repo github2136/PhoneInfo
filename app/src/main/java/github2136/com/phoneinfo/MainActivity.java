@@ -2,6 +2,8 @@ package github2136.com.phoneinfo;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -25,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
         permissionUtil = new PermissionUtil(this);
         ArrayMap<String, String> permission = new ArrayMap<>();
         permission.put(Manifest.permission.READ_PHONE_STATE, "获取手机信息");
-        permission.put(Manifest.permission.READ_SMS, "获取手机号信息");
         permissionUtil.getPermission(permission, new PermissionUtil.PermissionCallback() {
             @SuppressLint("MissingPermission")
             @Override
@@ -33,6 +34,26 @@ public class MainActivity extends AppCompatActivity {
                 StringBuilder sb = new StringBuilder();
 
                 TextView tvInfo = (TextView) findViewById(R.id.tv_info);
+                try {
+                    PackageManager mPackageManager = getPackageManager();
+                    PackageInfo mPackageInfo = mPackageManager.getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES);
+                    //APP显示的版本名
+                    tvInfo.append("VERSION_NAME：");
+                    tvInfo.append(mPackageInfo.versionName);
+                    tvInfo.append("\n");
+                    //APP的版本编号
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        tvInfo.append("VERSION_CODE：");
+                        tvInfo.append(mPackageInfo.getLongVersionCode() + "");
+                        tvInfo.append("\n");
+                    } else {
+                        tvInfo.append("VERSION_CODE：");
+                        tvInfo.append(mPackageInfo.versionCode + "");
+                        tvInfo.append("\n");
+                    }
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
                 TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     String meid = tm.getMeid();
