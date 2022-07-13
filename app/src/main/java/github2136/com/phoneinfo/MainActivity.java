@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                 sb.append(imsi);
                 sb.append("\n");
                 //电话方位
-//        CellLocation str = tm.getCellLocation();
+                // CellLocation str = tm.getCellLocation();
                 //运营商名称,注意：仅当用户已在网络注册时有效,在CDMA网络中结果也许不可靠
                 String networkoperatorName = tm.getNetworkOperatorName();
                 sb.append("NetworkOperatorName：");
@@ -259,26 +259,38 @@ public class MainActivity extends AppCompatActivity {
                 }
                 sb.append("\n\n");
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    for (int i = 0, len = Build.SUPPORTED_32_BIT_ABIS.length; i < len; i++) {
-                        String supported32BitAbi = Build.SUPPORTED_32_BIT_ABIS[i];
+                    int len32 = Build.SUPPORTED_32_BIT_ABIS.length;
+                    if (len32 > 0) {
                         sb.append("CPU32位ABI(SUPPORTED_32_BIT_ABIS)：\n");
-                        sb.append(supported32BitAbi);
+                        for (int i = 0; i < len32; i++) {
+                            String supported32BitAbi = Build.SUPPORTED_32_BIT_ABIS[i];
+                            sb.append(supported32BitAbi + ",");
+                        }
+                        sb.deleteCharAt(sb.length() - 1);
                         sb.append("\n\n");
                     }
 
-                    for (int i = 0, len = Build.SUPPORTED_64_BIT_ABIS.length; i < len; i++) {
-                        String supported64BitAbi = Build.SUPPORTED_64_BIT_ABIS[i];
+                    int len64 = Build.SUPPORTED_64_BIT_ABIS.length;
+                    if (len64 > 0) {
                         sb.append("CPU64位ABI(SUPPORTED_64_BIT_ABIS)：\n");
-                        sb.append(supported64BitAbi);
+                        for (int i = 0; i < len64; i++) {
+                            String supported64BitAbi = Build.SUPPORTED_64_BIT_ABIS[i];
+                            sb.append(supported64BitAbi + ",");
+                        }
+                        sb.deleteCharAt(sb.length() - 1);
                         sb.append("\n\n");
                     }
 
-                    for (int i = 0, len = Build.SUPPORTED_ABIS.length; i < len; i++) {
+                    sb.append("CPU所有ABI(SUPPORTED_ABIS)：\n");
+                    int len = Build.SUPPORTED_ABIS.length;
+                    for (int i = 0; i < len; i++) {
                         String supportedBitAbi = Build.SUPPORTED_ABIS[i];
-                        sb.append("CPU所有ABI(SUPPORTED_ABIS)：\n");
-                        sb.append(supportedBitAbi);
-                        sb.append("\n\n");
+                        sb.append(supportedBitAbi + ",");
                     }
+                    if (len > 0) {
+                        sb.deleteCharAt(sb.length() - 1);
+                    }
+                    sb.append("\n\n");
                 } else {
                     sb.append("CPU_ABI(CPU_ABI)：\n");
                     sb.append(Build.CPU_ABI);
@@ -323,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
                     sb.append("\n\n");
                 }
                 sb.append("用户可见版本号(RELEASE)：\n");
-                sb.append(Build.VERSION.RELEASE);
+                sb.append("Android " + Build.VERSION.RELEASE);
                 sb.append("\n\n");
                 sb.append("SDK版本(SDK_INT)：\n");
                 sb.append(Build.VERSION.SDK_INT);
